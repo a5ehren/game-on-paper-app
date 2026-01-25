@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "charliermarsh.ruff",
+    "ms-azuretools.vscode-containers",
+    "docker.docker",
+    "jeff-hykin.better-dockerfile-syntax",
+    "jeff-hykin.better-js-syntax"
+  ]
+}

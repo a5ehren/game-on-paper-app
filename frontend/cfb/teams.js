@@ -4,63 +4,74 @@ const util = require('util');
 const debuglog = util.debuglog('[frontend]');
 
 async function populate(endpoint, season, teamId, type = null) {
-    let seasonType = type != null ? `/types/${type}` : ""
-    let seasonStr = season != null ? `/seasons/${season}` : ""
-    const res =  await axios.get(`https://sports.core.api.espn.com/v2/sports/football/leagues/college-football${seasonStr}${seasonType}/teams/${teamId}/${endpoint}?lang=en&region=us`, {
-        protocol: "https"
-    })
-    debuglog(res.request.res.responseUrl)
-    let espnContent = res.data;
-    if (espnContent == null) {
-        throw Error(`Data not available for ESPN endpoint ${endpoint} with year ${season} and team ${teamId}.`)
+  let seasonType = type != null ? `/types/${type}` : '';
+  let seasonStr = season != null ? `/seasons/${season}` : '';
+  const res = await axios.get(
+    `https://sports.core.api.espn.com/v2/sports/football/leagues/college-football${seasonStr}${seasonType}/teams/${teamId}/${endpoint}?lang=en&region=us`,
+    {
+      protocol: 'https',
     }
+  );
+  debuglog(res.request.res.responseUrl);
+  let espnContent = res.data;
+  if (espnContent == null) {
+    throw Error(
+      `Data not available for ESPN endpoint ${endpoint} with year ${season} and team ${teamId}.`
+    );
+  }
 
-    let result = espnContent ?? {};
-    return result;
+  let result = espnContent ?? {};
+  return result;
 }
 
 exports.getTeamInformation = async function (teamId) {
-    return await populate("", null, teamId)
-}
+  return await populate('', null, teamId);
+};
 
 exports.getTeamSeasonInformation = async function (season, teamId) {
-    var result =  await populate("", season, teamId);
+  var result = await populate('', season, teamId);
 
-    let populatableKeys = ["record", "athletes", "ranks", "leaders"]
-    let typeKeys = ["record", "leaders"]
-    var valPromises = []
-    populatableKeys.forEach(item => {
-        valPromises.push(populate(item, season, teamId, typeKeys.includes(item) ? "2" : null));
-    });
+  let populatableKeys = ['record', 'athletes', 'ranks', 'leaders'];
+  let typeKeys = ['record', 'leaders'];
+  var valPromises = [];
+  populatableKeys.forEach(item => {
+    valPromises.push(populate(item, season, teamId, typeKeys.includes(item) ? '2' : null));
+  });
 
-    let populatingValues = await Promise.all(valPromises);
-    populatableKeys.forEach((item, idx) => {
-        result[item] = populatingValues[idx].items;
-    });
+  let populatingValues = await Promise.all(valPromises);
+  populatableKeys.forEach((item, idx) => {
+    result[item] = populatingValues[idx].items;
+  });
 
-    // debuglog(result);
-    var schedulePromises = []
-    let types = [2, 3];
-    types.forEach(type => {
-        let params = new URLSearchParams({ seasontype: type })
-        if (season) {
-            params.append("season", season)
+  // debuglog(result);
+  var schedulePromises = [];
+  let types = [2, 3];
+  types.forEach(type => {
+    let params = new URLSearchParams({ seasontype: type });
+    if (season) {
+      params.append('season', season);
+    }
+    schedulePromises.push(
+      axios.get(
+        `https://site.api.espn.com/apis/site/v2/sports/football/college-football/teams/${teamId}/schedule?` +
+          params.toString(),
+        {
+          protocol: 'https',
         }
-        schedulePromises.push(axios.get(`https://site.api.espn.com/apis/site/v2/sports/football/college-football/teams/${teamId}/schedule?` + params.toString(), {
-            protocol: "https"
-        }))
-    })
-    let responses = await Promise.all(schedulePromises);
-    result.events = [];
+      )
+    );
+  });
+  let responses = await Promise.all(schedulePromises);
+  result.events = [];
 
-    responses.forEach(response => {
-        Object.entries(response.data.events).forEach(([date, game]) => {
-            if (game != null && game.competitions != null) {
-                game.status = game.competitions[0].status;
-                result.events = result.events.concat(game)
-            }
-        })
-    })
+  responses.forEach(response => {
+    Object.entries(response.data.events).forEach(([date, game]) => {
+      if (game != null && game.competitions != null) {
+        game.status = game.competitions[0].status;
+        result.events = result.events.concat(game);
+      }
+    });
+  });
 
-    return result;
-}
+  return result;
+};

@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Assets and vendor files
+**/assets/**
+public/assets/**
+
+# Build outputs
+dist/
+build/
+
+# Minified files
+*.min.js
+*.min.css
+
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Other
+.git/
+.cache/
+coverage/

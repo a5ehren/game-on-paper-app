@@ -1,10 +1,17 @@
 {
   "name": "cfb-frontend",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Graphs and stuff",
-  "main": "index.js",
   "scripts": {
+    "start": "node server.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": ">= 24"
   },
   "repository": {
     "type": "git",
@@ -24,10 +31,16 @@
   },
   "homepage": "https://github.com/saiemgilani/cfb-data-api#readme",
   "dependencies": {
-    "axios": "^0.21.1",
-    "ejs": "^3.1.5",
-    "express": "^4.17.1",
-    "morgan": "^1.10.0",
-    "redis" : "^4.3.0"
+    "axios": "^1.13.3",
+    "ejs": "^4.0.1",
+    "express": "^5.2.1",
+    "morgan": "^1.10.1",
+    "redis": "^5.10.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "eslint": "^9.39.2",
+    "globals": "^17.1.0",
+    "prettier": "^3.8.1"
   }
 }
